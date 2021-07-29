@@ -44,24 +44,21 @@ function nodeinjections.insertmovie(specification)
 end
 
 function nodeinjections.insertsound(specification)
-    -- managed in interaction: repeat, label, foundname
-    local soundclip = interactions.soundclips.soundclip(specification.label)
-    if soundclip then
-        local controldict = pdfdictionary {
-            Mode = (specification["repeat"] and pdfconstant("Repeat")) or nil
-        }
-        local sounddict = pdfdictionary {
-            F = soundclip.filename
-        }
-        local bs, bc = pdfborder()
-        local action = pdfdictionary {
-            Subtype = pdfconstant("Movie"),
-            Border  = bs,
-            C       = bc,
-            T       = format("sound %s",specification.label),
-            Movie   = sounddict,
-            A       = controldict,
-        }
-        context(nodeinjections.annotation(0,0,0,action())) -- test: context(...)
-    end
+    -- this is a mess: tag, file, repeat
+    local controldict = pdfdictionary {
+        Mode = (specification["repeat"] and pdfconstant("Repeat")) or nil
+    }
+    local sounddict = pdfdictionary {
+        F = specification.file
+    }
+    local bs, bc = pdfborder()
+    local action = pdfdictionary {
+        Subtype = pdfconstant("Movie"),
+        Border  = bs,
+        C       = bc,
+        T       = format("movie %s",specification.tag),
+        Movie   = sounddict,
+        A       = controldict,
+    }
+    context(nodeinjections.annotation(0,0,0,action())) -- test: context(...)
 end

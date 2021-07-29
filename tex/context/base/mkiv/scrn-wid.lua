@@ -235,10 +235,9 @@ function soundclips.insert(tag)
     local sc = soundclips[tag]
     if not sc then
         -- todo: message
-        return soundclips.register { tag = tag }
-    else
-        return sc
+        sc = soundclips.register { tag = tag }
     end
+    nodeinjections.insertsound(sc)
 end
 
 implement {
