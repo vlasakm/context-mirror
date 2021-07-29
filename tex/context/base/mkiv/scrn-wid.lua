@@ -227,6 +227,7 @@ function soundclips.register(specification)
             specification.file = filename
         end
         soundclips[tag] = specification
+        nodeinjections.insertsound(specification) -- todo: do better
         return specification
     end
 end
