@@ -649,6 +649,7 @@ local function insertrenderingwindow(specification)
         Subtype = pdfconstant("Screen"),
         P       = pdfreference(pdfpagereference(page)),
         A       = a, -- needed in order to make the annotation clickable (i.e. don't bark)
+        T       = pdfunicode(label), -- title (for JS)
         Border  = bs,
         C       = bc,
         AA      = actions,
@@ -693,7 +694,7 @@ local function insertrendering(specification)
      --     }
      -- }
         local parameters = pdfdictionary {
-            Type = pdfconstant(MediaPermissions),
+            Type = pdfconstant("MediaPermissions"),
             TF   = pdfstring("TEMPALWAYS"), -- TEMPNEVER TEMPEXTRACT TEMPACCESS TEMPALWAYS / needed for acrobat/wmp
         }
         local descriptor = pdfdictionary {
@@ -723,7 +724,7 @@ local function insertrendering(specification)
         local rendition = pdfdictionary {
             Type = pdfconstant("Rendition"),
             S    = pdfconstant("MR"),
-            N    = label,
+            N    = pdfunicode(label),
             C    = pdfreference(pdfflushobject(clip)),
         }
         mf[label] = pdfreference(pdfflushobject(rendition))
@@ -760,6 +761,20 @@ function codeinjections.processrendering(label)
         insertrenderingobject(specification)
     end
 end
+
+-- needed mapping for access from JS
+local function flushrenderings()
+    if next(mf) then
+        local r = pdfarray()
+        for label, reference in sortedhash(mf) do
+            r[#r+1] = pdfunicode(label)
+            r[#r+1] = reference -- already a reference
+        end
+        lpdf.addtonames("Renditions",pdfreference(pdfflushobject(pdfdictionary{ Names = r })))
+    end
+end
+
+lpdf.registerdocumentfinalizer(flushrenderings,"renderings")
 
 function codeinjections.insertrenderingwindow(specification)
     local label = specification.label
