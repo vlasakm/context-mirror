@@ -45,6 +45,7 @@ local nodes                    = nodes
 local context                  = context
 
 local texgetcount              = tex.getcount
+local getmacro                 = tokens.getters.macro
 
 local hpacknode                = nodes.hpack
 
@@ -616,32 +617,44 @@ end
 local ms, mu, mf = { }, { }, { }
 
 local function delayed(label)
-    local a = pdfreserveobject()
-    mu[label] = a
-    return pdfreference(a)
+    local reserved = mu[label]
+    if not reserved then
+        reserved = pdfreserveobject()
+        mu[label] = reserved
+    end
+    return pdfreference(reserved)
+end
+
+local function checkedreference(ref)
+    local set, bug = structures.references.identify("",ref)
+    if not bug and #set > 0 then
+        return pdfaction(set)
+    end
 end
 
 local function insertrenderingwindow(specification)
     local label = specification.label
- -- local openpage = specification.openpage
- -- local closepage = specification.closepage
-    if specification.option == v_auto then
-        if openpageaction then
-            -- \handlereferenceactions{\v!StartRendering{#2}}
+    local openpage = specification.openpage
+    local closepage = specification.closepage
+    local option = settings_to_hash(specification.option)
+    if option[v_auto] then
+        if not openpage or openpage == "" then
+            openpage = "StartCurrentRendering"
         end
-        if closepageaction then
-            -- \handlereferenceactions{\v!StopRendering {#2}}
+        if not closepage or closepage == "" then
+            closepage = "StartCurrentRendering"
         end
     end
     local actions = nil
+    openpage, closepage = checkedreference(openpage), checkedreference(closepage)
     if openpage or closepage then
         actions = pdfdictionary {
-            PO = (openpage  and lpdfaction(openpage )) or nil,
-            PC = (closepage and lpdfaction(closepage)) or nil,
+            PO = openpage,
+            PC = closepage,
         }
     end
     local page = tonumber(specification.page) or texgetcount("realpageno") -- todo
-    local r = mu[label] or pdfreserveobject() -- why the reserve here?
+    local r = mu[label] or pdfreserveobject() -- reserve, child refers to parent
     local a = pdfdictionary {
         S  = pdfconstant("Rendition"),
         R  = mf[label],
@@ -788,17 +801,20 @@ function codeinjections.insertrenderingwindow(specification)
     ms[label] = insertrenderingwindow(specification)
 end
 
-local function set(operation,arguments)
-    codeinjections.processrendering(arguments)
-    return pdfdictionary {
-        S  = pdfconstant("Rendition"),
-        OP = operation,
-        R  = mf[arguments],
-        AN = ms[arguments] or delayed(arguments),
-    }
+local function set(operation,label)
+    label = label ~= nil and label ~= "" and label or getmacro("currentrendering")
+    if label and label ~= nil then
+        codeinjections.processrendering(label)
+        return pdfdictionary {
+            S  = pdfconstant("Rendition"),
+            OP = operation,
+            R  = mf[label],
+            AN = ms[label] or delayed(label),
+        }
+    end
 end
 
-function executers.startrendering (arguments) return set(0,arguments) end
-function executers.stoprendering  (arguments) return set(1,arguments) end
-function executers.pauserendering (arguments) return set(2,arguments) end
-function executers.resumerendering(arguments) return set(3,arguments) end
+function executers.startrendering (...) return set(0,...) end
+function executers.stoprendering  (...) return set(1,...) end
+function executers.pauserendering (...) return set(2,...) end
+function executers.resumerendering(...) return set(3,...) end

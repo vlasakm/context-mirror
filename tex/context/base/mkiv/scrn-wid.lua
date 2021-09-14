@@ -323,6 +323,8 @@ implement {
             { "height", "dimen"  },
             { "option" },
             { "page", "integer" },
+            { "openpage" },
+            { "closepage" },
         }
     }
 }

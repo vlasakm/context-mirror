@@ -615,10 +615,10 @@
 \mutable\let\currentrenderingtype  \empty
 \mutable\let\currentrenderingwindow\empty
 
-\definereference[StartCurrentRendering] [\v!StartRendering {\currentrendering}]
-\definereference[StopCurrentRendering]  [\v!StopRendering  {\currentrendering}]
-\definereference[PauseCurrentRendering] [\v!PauseRendering {\currentrendering}]
-\definereference[ResumeCurrentRendering][\v!ResumeRendering{\currentrendering}]
+\definereference[StartCurrentRendering] [StartRendering {}]
+\definereference[StopCurrentRendering]  [StopRendering  {}]
+\definereference[PauseCurrentRendering] [PauseRendering {}]
+\definereference[ResumeCurrentRendering][ResumeRendering{}]
 
 \permanent\tolerant\protected\def\useexternalrendering[#tag]#spacer[#mime]#spacer[#file]#spacer[#option]%
   {\clf_registerrendering
@@ -696,19 +696,18 @@
      \d_scrn_rendering_width \renderingwindowparameter\c!width
      \let\m_scrn_rendering_page\realpageno
    \fi
- % todo:
- % \handlereferenceactions{\renderingwindowparameter\c!openpageaction }\dosetuprenderingopenpageaction
- % \handlereferenceactions{\renderingwindowparameter\c!closepageaction}\dosetuprenderingclosepageaction
    \letrenderingwindowparameter\c!offset\v!overlay
    \inheritedrenderingwindowframed
      {\vfilll
       \dontleavehmode
       \clf_insertrenderingwindow
-        label  {\currentrendering}%
-        width  \d_scrn_rendering_width
-        height \d_scrn_rendering_height
-        option {\renderingoption\currentrendering}%
-        page   \m_scrn_rendering_page
+        label     {\currentrendering}%
+        width     \d_scrn_rendering_width
+        height    \d_scrn_rendering_height
+        option    {\renderingoption\currentrendering}%
+        page      \m_scrn_rendering_page
+        openpage  {\renderingwindowparameter\c!openpageaction}%
+        closepage {\renderingwindowparameter\c!closepageaction}%
       \relax
       \hfill}%
    \egroup}
