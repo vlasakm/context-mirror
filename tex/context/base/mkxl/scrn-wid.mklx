@@ -612,7 +612,6 @@
 % rel;ated ones).
 
 \mutable\let\currentrendering      \empty
-\mutable\let\currentrenderingtype  \empty
 \mutable\let\currentrenderingwindow\empty
 
 \definereference[StartCurrentRendering] [StartRendering {}]
@@ -620,31 +619,17 @@
 \definereference[PauseCurrentRendering] [PauseRendering {}]
 \definereference[ResumeCurrentRendering][ResumeRendering{}]
 
-\permanent\tolerant\protected\def\useexternalrendering[#tag]#spacer[#mime]#spacer[#file]#spacer[#option]%
+\permanent\tolerant\protected\def\userendering[#tag]#spacer[#mime]#spacer[#file]#spacer[#option]%
   {\clf_registerrendering
-     type     {external}%
      label    {#tag}%
      mime     {#mime}%
      filename {#file}%
      option   {#option}%
    \relax}
 
-\permanent\tolerant\protected\def\setinternalrendering[#tag]#spacer[#option]% {content} % crappy
-  {\bgroup
-   \dowithnextbox
-     {\clf_registerrendering
-         type     {internal}%
-         label    {#tag}%
-         mime     {IRO}% brrr
-         filename {#tag}%
-         option   {#option}%
-      \relax
-      \let\objectoffset\zeropoint
-      \setobject{IRO}{#tag}\hpack{\box\nextbox}%
-      \egroup}%
-     \hbox}
+% formerly \useexternalrendering, \setinternalrendering
+\permanent\tolerant\protected\let\useexternalrendering\userendering
 
-\permanent\def\renderingtype  #tag{\clf_renderingvar{#tag}{type}}
 \permanent\def\renderingoption#tag{\clf_renderingvar{#tag}{option}}
 
 \newdimen\d_scrn_rendering_width  \d_scrn_rendering_width  8cm
@@ -681,13 +666,7 @@
    \else
      \edef\currentrenderingwindow{#window}%
    \fi
-   \edef\currentrenderingtype{\renderingtype\currentrendering}%
-   \ifx\currentrenderingtype\s!internal
-     \getobjectdimensions{IRO}\currentrendering
-     \d_scrn_rendering_height\dimexpr\objectheight+\objectdepth\relax
-     \d_scrn_rendering_width\objectwidth\relax
-     \getobjectreferencepage{IRO}\currentrendering\m_scrn_rendering_page
-   \orelse\ifx\currentrenderingwindow\s!default
+   \ifx\currentrenderingwindow\s!default
      \d_scrn_rendering_height\vsize
      \d_scrn_rendering_width \hsize
      \let\m_scrn_rendering_page\realpageno

@@ -300,7 +300,6 @@ implement {
     actions   = renderings.register,
     arguments = {
         {
-            { "type" },
             { "label" },
             { "mime" },
             { "filename" },

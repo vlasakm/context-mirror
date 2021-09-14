@@ -749,34 +749,12 @@ local function insertrendering(specification)
     end
 end
 
-local function insertrenderingobject(specification) -- todo
-    local label = specification.label
-    if not mf[label] then
-        report_media("unknown medium, label %a",label)
-        local clip = pdfdictionary { -- does  not work that well one level up
-            Type = pdfconstant("MediaClip"),
-            S    = pdfconstant("MCD"),
-            N    = label,
-            D    = pdfreference(unknown), -- not label but objectname, hm .. todo?
-        }
-        local rendition = pdfdictionary {
-            Type = pdfconstant("Rendition"),
-            S    = pdfconstant("MR"),
-            N    = label,
-            C    = pdfreference(pdfflushobject(clip)),
-        }
-        mf[label] = pdfreference(pdfflushobject(rendition))
-    end
-end
-
 function codeinjections.processrendering(label)
     local specification = interactions.renderings.rendering(label)
-    if not specification then
-        -- error
-    elseif specification.type == "external" then
+    if specification then
         insertrendering(specification)
     else
-        insertrenderingobject(specification)
+        -- error
     end
 end
 
