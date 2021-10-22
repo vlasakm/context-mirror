@@ -17,7 +17,7 @@ slower but look nicer this way.</p>
 --ldx]]--
 
 local floor = math.floor
-local osdate, ostime = os.date, os.time
+local osdate, ostime, ostimezone = os.date, os.time, os.timezone
 local concat, insert, reverse = table.concat, table.insert, table.reverse
 local lower, upper, rep, match, gsub = string.lower, string.upper, string.rep, string.match, string.gsub
 local utfchar, utfbyte = utf.char, utf.byte
@@ -1972,13 +1972,18 @@ implement {
 }
 
 local n = R("09")^1 / tonumber
+local sign = S("+-") / function(s) return tonumber(s.."1") end
 
 local p = Cf( Ct("")
     * Cg(Cc("year")  * (n           )) * P("-")^-1
     * Cg(Cc("month") * (n + Cc(   1))) * P("-")^-1
-    * Cg(Cc("day")   * (n + Cc(   1))) * whitespace^-1
+    * Cg(Cc("day")   * (n + Cc(   1))) * (whitespace + P("T"))^-1
     * Cg(Cc("hour")  * (n + Cc(   0))) * P(":")^-1
-    * Cg(Cc("min")   * (n + Cc(   0)))
+    * Cg(Cc("min")   * (n + Cc(   0))) * P(":")^-1
+    * Cg(Cc("sec")   * (n + Cc(   0)))^-1
+    *(Cg(Cc("tzsgn") * sign)
+    * Cg(Cc("tzh")   * (n + Cc(   0))) * P(":")^-1
+    * Cg(Cc("tzm")   * (n + Cc(   0))))^-1
     , rawset)
 
 function converters.totime(s)
@@ -1987,7 +1992,13 @@ function converters.totime(s)
     elseif type(s) == "table" then
         return s
     elseif type(s) == "string" then
-        return lpegmatch(p,s)
+        local t = lpegmatch(p,s)
+        if t.tzh then
+            local localtzh, localtzm = ostimezone(true, true)
+            t.hour = t.hour + localtzh - t.tzsgn * t.tzh
+            t.min  = t.min  + localtzm - t.tzsgn * t.tzm or 0
+        end
+        return t
     end
     local n = tonumber(s)
     if n and n >= 0 then

@@ -26,10 +26,10 @@ if not modules then modules = { } end modules ['l-os'] = {
 -- math.randomseed(tonumber(string.sub(string.reverse(tostring(math.floor(socket.gettime()*10000))),1,6)))
 
 local os = os
-local date, time = os.date, os.time
+local date, time, difftime = os.date, os.time, os.difftime
 local find, format, gsub, upper, gmatch = string.find, string.format, string.gsub, string.upper, string.gmatch
 local concat = table.concat
-local random, ceil, randomseed = math.random, math.ceil, math.randomseed
+local random, ceil, randomseed, modf = math.random, math.ceil, math.randomseed, math.modf
 local type, setmetatable, tonumber, tostring = type, setmetatable, tonumber, tostring
 
 -- This check needs to happen real early on. Todo: we can pick it up from the commandline
@@ -434,15 +434,22 @@ end
 
 do
 
-    local d
-
-    function os.timezone(delta)
-        d = d or ((tonumber(date("%H")) or 0) - (tonumber(date("!%H")) or 0))
+    -- http://lua-users.org/wiki/TimeZone
+    -- +02:00
+    function os.timezone(delta, diff)
         if delta then
-            if d > 0 then
-                return format("+%02i:00",d)
+            local t         = time()
+            local utcdate   = os.date("!*t", t)
+            local localdate = os.date("*t", t)
+            localdate.isdst  = false
+            local timediff  = os.difftime(time(localdate), time(utcdate))
+            local hour, min = math.modf(timediff / 3600)
+            min = min * 60
+
+            if diff then
+                return hour, min
             else
-                return format("-%02i:00",-d)
+                return format("%+03d:%02d", hour, min)
             end
         else
             return 1
@@ -450,10 +457,12 @@ do
     end
 
     local timeformat = format("%%s%s",os.timezone(true))
-    local dateformat = "!%Y-%m-%d %H:%M:%S"
+    local dateformat = "%Y-%m-%d %H:%M:%S"
     local lasttime   = nil
     local lastdate   = nil
 
+    -- localtime + timezone
+    -- 2021-10-22 10:22:54+02:00
     function os.fulltime(t,default)
         t = t and tonumber(t) or 0
         if t > 0 then
@@ -474,6 +483,8 @@ do
     local lasttime   = nil
     local lastdate   = nil
 
+    -- localtime without timezone
+    -- 2021-10-22 10:22:54
     function os.localtime(t,default)
         t = t and tonumber(t) or 0
         if t > 0 then
@@ -503,8 +514,10 @@ do
         return date("!*t") -- table with values
     end
 
+    -- utc time without timezone
+    -- 2021-10-22 08:22:54
     function os.now()
-        return date("!%Y-%m-%d %H:%M:%S") -- 2011-12-04 14:59:12
+        return date("!%Y-%m-%d %H:%M:%S")
     end
 
 end
