@@ -469,14 +469,12 @@ do
             if diff then
                 return hour, min
             else
-                -- hm, why no - relative to local ... option?
-             -- return format("%+03d:%02d",hour,min)
-                return format("+%02d:%02d",hour,min)
+                return format("%+03d:%02d",hour,min)
             end
-         else
+        else
             return 1
         end
-     end
+    end
 
     -- localtime with timezone: 2021-10-22 10:22:54+02:00
 

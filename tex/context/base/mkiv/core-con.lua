@@ -1996,11 +1996,11 @@ local p = Cf( Ct("")
     -- zone is optional, hour is mandate, minutes are optional
     * (
           whitespace^0
-        * Cg(Cc("tzs") * (P("+") * Cc(1) + P("-") * Cc(-1) + Cc(1))
+        * Cg(Cc("tzs") * (P("+") * Cc(1) + P("-") * Cc(-1) + Cc(1)))
         * whitespace^0
         * Cg(Cc("tzh") * n)
         * P(":")^-1
-        * Cg(Cc("tzm") * (n + Cc(0))))
+        * Cg(Cc("tzm") * (n + Cc(0)))
     )^-1
     , rawset)
 
