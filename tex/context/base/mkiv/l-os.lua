@@ -434,35 +434,57 @@ end
 
 do
 
-    -- http://lua-users.org/wiki/TimeZone
-    -- +02:00
-    function os.timezone(delta, diff)
-        if delta then
-            local t         = time()
-            local utcdate   = os.date("!*t", t)
-            local localdate = os.date("*t", t)
-            localdate.isdst  = false
-            local timediff  = os.difftime(time(localdate), time(utcdate))
-            local hour, min = math.modf(timediff / 3600)
-            min = min * 60
+    -- this is fragile because it depends on time and so we only check once during
+    -- a run (the computer doesn't move zones)
 
+ -- local d
+ --
+ -- function os.timezone(delta)
+ --     d = d or ((tonumber(date("%H")) or 0) - (tonumber(date("!%H")) or 0))
+ --     if delta then
+ --         if d > 0 then
+ --             return format("+%02i:00",d)
+ --         else
+ --             return format("-%02i:00",-d)
+ --         end
+ --     else
+ --         return 1
+ --     end
+ -- end
+
+    local hour, min
+
+    function os.timezone(delta,diff)
+         if delta then
+            if not hour then
+                -- somehow looks too complex:
+                local current   = time()
+                local utcdate   = date("!*t", current)
+                local localdate = date("*t", current)
+                localdate.isdst = false
+                local timediff  = difftime(time(localdate), time(utcdate))
+                hour, min = modf(timediff / 3600)
+                min = min * 60
+            end
             if diff then
                 return hour, min
             else
-                return format("%+03d:%02d", hour, min)
+                -- hm, why no - relative to local ... option?
+             -- return format("%+03d:%02d",hour,min)
+                return format("+%02d:%02d",hour,min)
             end
-        else
+         else
             return 1
         end
-    end
+     end
+
+    -- localtime with timezone: 2021-10-22 10:22:54+02:00
 
     local timeformat = format("%%s%s",os.timezone(true))
     local dateformat = "%Y-%m-%d %H:%M:%S"
     local lasttime   = nil
     local lastdate   = nil
 
-    -- localtime + timezone
-    -- 2021-10-22 10:22:54+02:00
     function os.fulltime(t,default)
         t = t and tonumber(t) or 0
         if t > 0 then
@@ -479,12 +501,12 @@ do
         return lastdate
     end
 
+    -- localtime without timezone: 2021-10-22 10:22:54
+
     local dateformat = "%Y-%m-%d %H:%M:%S"
     local lasttime   = nil
     local lastdate   = nil
 
-    -- localtime without timezone
-    -- 2021-10-22 10:22:54
     function os.localtime(t,default)
         t = t and tonumber(t) or 0
         if t > 0 then
@@ -510,12 +532,14 @@ do
         end
     end
 
+    -- table with values
+
     function os.today()
-        return date("!*t") -- table with values
+        return date("!*t")
     end
 
-    -- utc time without timezone
-    -- 2021-10-22 08:22:54
+    -- utc time without timezone: 2021-10-22 08:22:54
+
     function os.now()
         return date("!%Y-%m-%d %H:%M:%S")
     end
