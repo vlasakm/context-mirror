@@ -118,7 +118,7 @@ The \LUAMETATEX\ engine has some tracing built in that is enabled by setting \pr
 \startsection[title={Adjusts}]
 
 The \prm {vadjust} primitive injects something in the vertical list after the
-lien where it ends up. In \PDFTEX\ the \type {pre} keyword was added so that one
+line where it ends up. In \PDFTEX\ the \type {pre} keyword was added so that one
 could force something before a previous line (actually this was something that we
 needed in \CONTEXT\ \MKII). The \LUAMETATEX\ engine also supports the \type {post}
 keyword.
@@ -177,7 +177,7 @@ behind.
 As far as I know the \OMEGA/\ALEPH\ local box mechanism is mostly in those
 engines in order to support repetitive quotes. In \LUATEX\ this mechanism has
 been made more robust and in \LUAMETATEX\ it became more tightly integrated in
-the paragraph properties. In order for it to be a more generic useful feature it
+the paragraph properties. In order for it to be a more generic and useful, it
 got more features. For instance it is a bit painful to manage with respect to
 grouping (which is a reason why it's not that much used). The most interesting
 property is that the dimensions are taking into account when a paragraph is
@@ -190,7 +190,7 @@ used the index but this was a cheap extra signal so we keep it).
 
 These commands take optional keywords. The \type {index} keyword has to be
 followed by an integer. This index determines the order which doesn't introduce a
-significant compatibility issue: local boxes are hardly used and originally have
+significant compatibility issue: local boxes are hardly used and originally had
 only one instance.
 
 The \type {par} keyword forces the box to be added to the current paragraph head.
@@ -202,7 +202,7 @@ The \type {local} keyword tells this mechanism not to update the registers that
 keep these boxes. In that case a next paragraph will start fresh. The \type
 {keep} option will do the opposite and retain the box after a group ends.
 
-There commands: \prm {localleftboxbox}, \prm {localrightboxbox} and \prm
+The commands: \prm {localleftboxbox}, \prm {localrightboxbox} and \prm
 {localmiddleboxbox} return a copy of the current related register content.
 
 \stopsection
