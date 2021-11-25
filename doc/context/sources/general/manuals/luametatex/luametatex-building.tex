@@ -73,7 +73,7 @@ column. If there are three columns, the first two will store inserts. Then when
 the last column is dealt with \prm {insertstoring} can be set to 2 and that will
 signal the builder that we will inject the inserts. In both cases, the value of
 this register will be set to zero so that it doesn't influence further
-processing. You can use \prm {ifinsert} to check if am insert box is void. More
+processing. You can use \prm {ifinsert} to check if an insert box is void. More
 details about these (probably experimental for a while) features can be found in
 documents that come with \CONTEXT.
 
@@ -125,7 +125,7 @@ keyword.
 
 We support a few more keywords: \type {before} will prepend the adjustment to the
 already given one, and \type {after} will append it. The \type {index} keyword
-expects an integer and relate that to the current adjustment. This index is
+expects an integer and relates it to the current adjustment. This index is
 passed to an (optional) callback when the adjustment is finally moved to the
 vertical list. That move is actually delayed because like inserts and marks these
 (vertical) adjustments can migrate to the \quote {outer} vertical level.
@@ -158,7 +158,7 @@ and inserts bubble up to the outer level.
 \LL
 \stoptabulate
 
-If you want to migrate marks and inserts you need to set al these flags. Migrated
+If you want to migrate marks and inserts you need to set all these flags. Migrated
 marks and inserts end up as post|-|box properties and will be handled in the page
 builder as such. At the \LUA\ end you can add pre- and post|-|box material too.
 
@@ -166,7 +166,7 @@ builder as such. At the \LUA\ end you can add pre- and post|-|box material too.
 
 \startsection[title={Pages}]
 
-The page builder can triggered by (for instance) a penalty but you can also use
+The page builder can be triggered by (for instance) a penalty, but you can also use
 \prm {pageboundary}. This will trigger the page builder but not leave anything
 behind.
 
@@ -180,7 +180,7 @@ been made more robust and in \LUAMETATEX\ it became more tightly integrated in
 the paragraph properties. In order for it to be a more generic and useful, it
 got more features. For instance it is a bit painful to manage with respect to
 grouping (which is a reason why it's not that much used). The most interesting
-property is that the dimensions are taking into account when a paragraph is
+property is that the dimensions are taken into account when a paragraph is
 broken into lines.
 
 There are three commands: \prm {localleftbox}, \prm {localrightbox} and the
